@@ -1,0 +1,20 @@
+{
+  "version": "1.0",
+  "note": "Scenario presets for the RE:GEN City Simulator. Values override sim.js DEFAULTS. Simulation, not a forecast.",
+  "scenarios": [
+    { "id": "base", "name": "Base case", "description": "Master-plan assumptions, flat kwanza (~AOA 920/USD).", "config": {} },
+    { "id": "anchor", "name": "Anchor tenant signed", "description": "A streamer or studio contracts 2 stages for 150 days a year.", "config": { "anchor": true } },
+    { "id": "no-intl", "name": "No international demand", "description": "International productions at 30% of plan; no rebate.", "config": { "intlDemandMult": 0.3 } },
+    { "id": "kwanza", "name": "Kwanza crisis", "description": "A one-off 32% fall plus 10% drift; indexation recovers 70% each quarter.", "config": { "kwanzaShock": 0.32, "kwanzaDrift": 0.10 } },
+    { "id": "flood", "name": "Heavy rainy season and flooding", "description": "Rainfall intensity doubled.", "config": { "rainIntensity": 2.0 } },
+    { "id": "delay", "name": "Construction delay (9 months)", "description": "The site opens 9 months late in the operating year.", "config": { "constructionDelayMonths": 9 } },
+    { "id": "partner-energy", "name": "Energy partner withdraws", "description": "No solar plant; grid plus diesel back-up.", "config": { "partnerWithdraws": "energy" } },
+    { "id": "partner-hotel", "name": "Hotel operator withdraws", "description": "Hotel lease income stops (Wave 2 and 3).", "config": { "partnerWithdraws": "hotel" } },
+    { "id": "grid", "name": "Grid failures", "description": "Three times as many outages, up to 5 days each.", "config": { "gridFailures": true } },
+    { "id": "skills", "name": "Skills shortage", "description": "Fewer skilled local crew; academy output at 40%.", "config": { "skillsShortage": true } },
+    { "id": "festival", "name": "Festival and tourism boom", "description": "Visitors up 60%; festival income doubled.", "config": { "festivalBoom": true } },
+    { "id": "permit", "name": "Political or permit delay", "description": "A 90-day permit hold and more frequent protests.", "config": { "permitDelayDays": 90 } },
+    { "id": "rebate", "name": "Production rebate passed", "description": "A national cash rebate lifts international arrivals 50%.", "config": { "rebate": true } },
+    { "id": "finance-phased", "name": "Finance phased case (USD 93M Wave 1 debt)", "description": "Wave 1 debt from the phased financial model, 2026-10-27.", "config": { "wave": 1, "debtMUSD": 93 } }
+  ]
+}
