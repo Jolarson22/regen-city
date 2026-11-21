@@ -139,6 +139,10 @@ svg text { font-family: var(--f-mono); font-size: 11px; fill: var(--ink-2); }
 .lines td { padding: 4px 0; border-bottom: 1px solid var(--rule); }
 .lines td:last-child { text-align: right; font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
 .note { font-size: 12.5px; color: var(--ink-2); max-width: 90ch; }
+.rgallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin-top: 10px; }
+.rgallery a { display: block; position: relative; text-decoration: none; }
+.rgallery img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block; border-radius: 4px; }
+.rgallery span { position: absolute; left: 8px; bottom: 8px; background: rgba(0,0,0,.6); color: #fff; font: 500 11px var(--f-mono); padding: 2px 6px; border-radius: 3px; }
 .busy { font-family: var(--f-mono); font-size: 11px; color: var(--laterite); }
 .lines th { text-align: left; font: 500 10.5px var(--f-mono); text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); padding: 4px 0; border-bottom: 1px solid var(--rule); }
 .lines th.num, .lines td.num { text-align: right; }
@@ -250,6 +254,7 @@ table.travel small { color: var(--ink-2); }
           <button type="button" data-look="site" aria-pressed="true">Site</button>
           <button type="button" data-look="model" aria-pressed="false">Tabletop model</button>
           <button type="button" data-look="night" aria-pressed="false">Glass case, night</button>
+          <button type="button" data-look="real" aria-pressed="false">Realistic (Blender)</button>
         </div>
       </div>
       <div class="legend" id="legend" style="padding-top:8px"></div>
@@ -355,6 +360,17 @@ table.travel small { color: var(--ink-2); }
     </div>
   </section>
 
+  <section class="card" id="renderCard">
+    <h2>Blender renders</h2>
+    <p class="note">Path-traced in Blender (Cycles) from the same model as the Realistic look: Waterfront Studio City, all three waves, mid-century and botanic architecture. Illustrations, not design drawings.</p>
+    <div class="rgallery">
+      <a href="https://cdn.prod.website-files.com/69395778a5005daf2b28aa28/6aff97e57f625c70863e21c2_render-aerial.jpg" target="_blank" rel="noopener"><img src="https://cdn.prod.website-files.com/69395778a5005daf2b28aa28/6aff97e57f625c70863e21c2_render-aerial.jpg" alt="Aerial view of the whole city in late-afternoon light" loading="lazy"><span>Aerial</span></a>
+      <a href="https://cdn.prod.website-files.com/69395778a5005daf2b28aa28/6aff97e5814e43aa16578109_render-museum.jpg" target="_blank" rel="noopener"><img src="https://cdn.prod.website-files.com/69395778a5005daf2b28aa28/6aff97e5814e43aa16578109_render-museum.jpg" alt="Domed art and film museum with a ring skylight" loading="lazy"><span>Museum</span></a>
+      <a href="https://cdn.prod.website-files.com/69395778a5005daf2b28aa28/6aff97e5d680a4a5e1f1d00f_render-plaza.jpg" target="_blank" rel="noopener"><img src="https://cdn.prod.website-files.com/69395778a5005daf2b28aa28/6aff97e5d680a4a5e1f1d00f_render-plaza.jpg" alt="Central plaza with planted beds and the canals" loading="lazy"><span>Plaza</span></a>
+      <a href="https://cdn.prod.website-files.com/69395778a5005daf2b28aa28/6aff97e6814e43aa1657816f_render-waterfront.jpg" target="_blank" rel="noopener"><img src="https://cdn.prod.website-files.com/69395778a5005daf2b28aa28/6aff97e6814e43aa1657816f_render-waterfront.jpg" alt="Canal waterfront with palms and shops" loading="lazy"><span>Waterfront</span></a>
+      <a href="https://cdn.prod.website-files.com/69395778a5005daf2b28aa28/6aff97e5bc41912e0d178e21_render-street.jpg" target="_blank" rel="noopener"><img src="https://cdn.prod.website-files.com/69395778a5005daf2b28aa28/6aff97e5bc41912e0d178e21_render-street.jpg" alt="Street-level view in the living district" loading="lazy"><span>Street</span></a>
+    </div>
+  </section>
   <section class="card" id="planCard">
     <header><h2>City planning score</h2><span class="eyebrow">Measured from the model against UN-Habitat, <i>Urban Planning for City Leaders</i> (2nd ed., 2014)</span></header>
     <div class="ptable-wrap" id="planScore"><p class="note">Scoring…</p></div>
@@ -367,6 +383,9 @@ table.travel small { color: var(--ink-2); }
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/objects/Sky.js"></script>
 <script src="sim.js"></script>
 <script>
 (function () {
@@ -1516,8 +1535,9 @@ function animate(ts) {
   if (tween && camera) { tween.t = Math.min(1, tween.t + (lastStep || 0.016) / tween.dur); const e = tween.t < 0.5 ? 2 * tween.t * tween.t : 1 - Math.pow(-2 * tween.t + 2, 2) / 2;
     camera.position.lerpVectors(tween.p0, tween.p1, e); controls.target.lerpVectors(tween.q0, tween.q1, e); if (tween.t >= 1) tween = null; }
   controls && controls.update();
-  renderer && renderer.render(scene, camera);
-  renderLabels(false); updateCompass();
+  if (renderer) { const R = LOOK === 'real' && realScene; renderer.toneMapping = R ? THREE.ACESFilmicToneMapping : THREE.NoToneMapping; renderer.toneMappingExposure = 0.8;
+    renderer.outputEncoding = R ? THREE.sRGBEncoding : THREE.LinearEncoding; renderer.render(R ? realScene : scene, camera); }
+  if (LOOK !== 'real') renderLabels(false); updateCompass();
 }
 function setPlaying(p) { playing = p; $('play').textContent = p ? '❚❚ Pause' : '▶ Play year'; if (p && day >= 364) showDay(0); }
 
@@ -1900,7 +1920,90 @@ function applyLook() {
 }
 function setLook(l) {
   LOOK = l; document.querySelectorAll('[data-look]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.look === l)));
-  applyLook(); if (l !== 'site') setView('model');
+  const lab = document.querySelector('.labels, #labels'); if (lab) lab.style.visibility = l === 'real' ? 'hidden' : '';
+  if (l === 'real') { loadReal(); setView('overview'); showRealNote(); return; }
+  hideRealNote(); applyLook(); if (l !== 'site') setView('model');
+}
+/* ================= Realistic look: the Blender model (Waterfront Studio City, all waves) =================
+   regen_city.glb is exported from the same Blender scene as the still renders (geometry + materials, Draco-compressed);
+   trees, reed beds and cars come from regen_instances.json and are drawn with GPU instancing. Sky, sun angle
+   (24 degrees, from the south-west) and tone mapping follow the Blender renders. Glass and breeze-block facades are
+   drawn by small shaders that repeat the Blender material patterns. */
+let realScene = null, realLoading = false, realNote = null;
+function showRealNote(msg) {
+  if (!realNote) { realNote = document.createElement('p'); realNote.className = 'note'; realNote.style.cssText = 'position:absolute;left:12px;bottom:12px;margin:0;padding:6px 10px;background:rgba(255,255,255,.88);color:#222;border-radius:4px;max-width:60ch;pointer-events:none'; vp.appendChild(realNote); }
+  realNote.textContent = msg || (realScene ? 'Blender model: Waterfront Studio City, all three waves. The layout buttons do not change this view.' : 'Loading the Blender model…'); realNote.style.display = '';
+}
+function hideRealNote() { if (realNote) realNote.style.display = 'none'; }
+function facadeShader(m, kind) {
+  m.onBeforeCompile = sh => {
+    sh.vertexShader = 'varying vec3 vWPos; varying vec3 vWN;\n' + sh.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\n#ifdef USE_INSTANCING\n vWPos = (modelMatrix * instanceMatrix * vec4(transformed, 1.0)).xyz; vWN = normalize(mat3(modelMatrix) * mat3(instanceMatrix) * objectNormal);\n#else\n vWPos = (modelMatrix * vec4(transformed, 1.0)).xyz; vWN = normalize(mat3(modelMatrix) * objectNormal);\n#endif');
+    let f = 'varying vec3 vWPos; varying vec3 vWN;\n' + sh.fragmentShader;
+    const head = 'float fu = abs(vWN.x) > 0.5 ? vWPos.z : vWPos.x; float side = step(abs(vWN.y), 0.5);\n';
+    if (kind === 'glass') {
+      f = f.replace('#include <color_fragment>', '#include <color_fragment>\n' + head +
+        'vec2 gq = vec2(fu / 1.8, vWPos.y / 3.3); vec2 fq = fract(gq); float frame = min(1.0, step(fq.x, 0.05) + step(fq.y, 0.06)) * side;\n' +
+        'float hq = fract(sin(dot(floor(gq), vec2(12.9898, 78.233))) * 43758.5453);\n' +
+        'vec3 pane = hq > 0.9 ? vec3(0.9, 0.72, 0.45) : (hq > 0.72 ? vec3(0.55, 0.5, 0.42) : diffuseColor.rgb);\n' +
+        'diffuseColor.rgb = mix(side > 0.5 ? pane : vec3(0.16), vec3(0.16, 0.16, 0.17), frame);');
+      f = f.replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\nroughnessFactor = mix(0.04, 0.45, frame);');
+      f = f.replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\ntotalEmissiveRadiance += (hq > 0.9 ? vec3(0.22, 0.15, 0.08) : vec3(0.0)) * (1.0 - frame) * side;');
+    } else {
+      f = f.replace('#include <color_fragment>', '#include <color_fragment>\n' + head +
+        'vec2 gb = vec2(fu / 0.4, vWPos.y / 0.4); vec2 fb = fract(gb); float web = min(1.0, step(fb.x, 0.28) + step(fb.y, 0.28));\n' +
+        'diffuseColor.rgb = mix(diffuseColor.rgb, mix(vec3(0.05, 0.045, 0.04), diffuseColor.rgb, web), side);');
+    }
+    sh.fragmentShader = f;
+  };
+  m.needsUpdate = true;
+}
+function loadReal() {
+  if (realScene || realLoading || !renderer || !THREE.GLTFLoader) { if (!THREE.GLTFLoader) showRealNote('The 3D model loader did not load, so the Blender model cannot be shown.'); return; }
+  realLoading = true; showRealNote();
+  const s = new THREE.Scene(), sunDir = new THREE.Vector3(-0.524, 0.407, 0.748).normalize();   // same sun as the Blender scene
+  const sky = new THREE.Sky(); sky.scale.setScalar(40000); const u = sky.material.uniforms;
+  u.turbidity.value = 6; u.rayleigh.value = 1.4; u.mieCoefficient.value = 0.004; u.mieDirectionalG.value = 0.8; u.sunPosition.value.copy(sunDir);
+  const envScene = new THREE.Scene(); envScene.add(sky);
+  const pm = new THREE.PMREMGenerator(renderer); renderer.toneMapping = THREE.ACESFilmicToneMapping; s.environment = pm.fromScene(envScene, 0.02).texture; pm.dispose();
+  envScene.remove(sky); s.add(sky);
+  s.fog = new THREE.Fog(0xcbd6dc, 2800, 11000);
+  const hemiR = new THREE.HemisphereLight(0xd6e4f2, 0x7d6a4c, 0.3); s.add(hemiR);
+  const sunR = new THREE.DirectionalLight(0xffe8cf, 1.7); sunR.position.copy(sunDir).multiplyScalar(2600);
+  sunR.castShadow = true; sunR.shadow.mapSize.set(4096, 4096); Object.assign(sunR.shadow.camera, { left: -1500, right: 1500, top: 1500, bottom: -1500, near: 200, far: 6000 });
+  sunR.shadow.bias = -0.0005; sunR.shadow.normalBias = 0.6; s.add(sunR); s.add(sunR.target);
+  const dl = new THREE.DRACOLoader(); dl.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/gltf/'); const gl = new THREE.GLTFLoader(); gl.setDRACOLoader(dl);
+  const getGlb = async () => { try { const r = await Promise.reject('cdn'); if (r.ok && !/text|html/.test(r.headers.get('content-type') || '')) return await r.arrayBuffer(); } catch (e) {}
+    const t = await (await fetch('https://cdn.prod.website-files.com/69395778a5005daf2b28aa28/6aff9728bfb200af10753a28_regen_city.b64.txt')).text(); return Uint8Array.from(atob(t.trim()), c => c.charCodeAt(0)).buffer; };   // fallback copy for hosts that do not serve .glb
+  showRealNote('Loading the Blender model…');
+  getGlb().then(buf => gl.parse(buf, '', async g => {
+    const root = g.scene;
+    root.traverse(o => { if (!o.isMesh) return; o.receiveShadow = true; o.castShadow = !/savanna|laterite|district garden|studio yard|lawn|water|pale paving|asphalt|stone quay/.test(o.material.name);
+      const n = o.material.name || '';
+      if (/glazing/.test(n)) facadeShader(o.material, 'glass');
+      else if (/breeze/.test(n)) facadeShader(o.material, 'block');
+      if (/^water/.test(n)) { o.material.roughness = 0.06; o.material.metalness = 0.0; o.material.envMapIntensity = 0.5; }
+      else if (/glazing/.test(n)) o.material.envMapIntensity = 0.35; else o.material.envMapIntensity = 0.12; });
+    s.add(root);
+    try {
+      const data = await (await fetch('https://cdn.prod.website-files.com/69395778a5005daf2b28aa28/6aff97e5086c9c1d448aa3f4_regen_instances.json')).json(), protos = {};
+      root.updateMatrixWorld(true); root.traverse(o => { if (/^proto_/.test(o.name)) protos[o.name] = o; });
+      const T = new THREE.Matrix4(), Rm = new THREE.Matrix4(), S = new THREE.Matrix4(), out = new THREE.Matrix4(), inv = new THREE.Matrix4();
+      for (const set of data.sets) {
+        const thin = set.name === 'trees' && matchMedia('(max-width: 760px)').matches ? 3 : 1;   // phones: every third tree
+        const byVar = {}; for (let i = 0, k = 0; i < set.pts.length; i += 8, k++) { if (k % thin) continue; (byVar[set.pts[i + 3]] = byVar[set.pts[i + 3]] || []).push(i); }
+        for (const v in byVar) {
+          const p = protos[set.protos[v]] || protos[set.protos[v].replace(/\./g, '')]; if (!p) continue;
+          p.visible = false; inv.copy(p.matrixWorld).invert();
+          p.traverse(m => { if (!m.isMesh) return; const rel = new THREE.Matrix4().multiplyMatrices(inv, m.matrixWorld), idx = byVar[v];
+            const im = new THREE.InstancedMesh(m.geometry, m.material, idx.length);
+            idx.forEach((i, k) => { const q = set.pts; T.makeTranslation(q[i], q[i + 2], -q[i + 1]); Rm.makeRotationY(q[i + 7]); S.makeScale(q[i + 4], q[i + 6], q[i + 5]);
+              out.multiplyMatrices(T, Rm).multiply(S).multiply(rel); im.setMatrixAt(k, out); });
+            im.castShadow = set.name !== 'reeds'; im.receiveShadow = true; s.add(im); });
+        }
+      }
+    } catch (e) { console.warn('instances', e); }
+    realScene = s; realLoading = false; if (LOOK === 'real') showRealNote();
+  }, e => { realLoading = false; showRealNote('The Blender model could not be loaded.'); console.warn(e); })).catch(e => { realLoading = false; showRealNote('The Blender model could not be loaded.'); console.warn(e); });
 }
 function sceneBg(flood) { const L = LOOK_CFG[LOOK]; const b = hex(L ? L.bg : css('--scene-bg')); return flood && !L ? b.lerp(hex('#6c7c86'), 0.35) : b; }
 
@@ -1917,6 +2020,7 @@ async function boot() {
   if (saved.wave && saved.wave !== wave) setWave(saved.wave);
   runAll();
   showDay(213); // open on a dry-season day in August
+  if (THREE.GLTFLoader) setLook('real');   // open on the Blender model; the other looks are one click away
   setTimeout(scoreOtherPlan, 400);   // score the other layout once, so the planning table compares both
 }
 boot();
